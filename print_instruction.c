@@ -14,23 +14,31 @@
 ///////////////////////////////////////////////////////
 char *get_instruction(uint32_t instruction);
 int get_num_repi(char *check123);
+int find_reg_7_11(uint32_t instruction);
+int find_reg_11_16(uint32_t instruction);
+int find_reg_17_21(uint32_t instruction);
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
 
 void print_instruction(uint32_t instruction) {
-    
+    int a = 0;
+    int b = 0;
+    int c = 0;
     char *check123 = get_instruction(instruction); // get the name of the instruction
-    printf("%s\n", check123); 
-    
-    int repi = get_num_repi(check123);
+    int repi = get_num_repi(check123); // get number representation of intruction to make shit easier
+    //printf("%s\n", check123);     
     //int b = strcmp("add", check123); // b = 0 if they match, 1 if they dont
     //if(b == 0){
-      printf("%d\n", repi); 
+    //  printf("%d\n", repi); 
     //}
+    // this does  [ add, sub, mul, and, or, xor, sllv, srlv, slt]
     if(repi == 1 || repi == 2 || repi == 3 || repi == 4 || repi == 5 || repi == 6 || repi == 7 || repi == 8 || repi == 9){
-        printf("i am a coding god\n");
+        a = find_reg_17_21(instruction);
+        b = find_reg_7_11(instruction);
+        c = find_reg_11_16(instruction);
+        printf("%s $%d, $%d, $%d",check123 ,a ,b ,c);
     }
 
    
@@ -194,3 +202,16 @@ int get_num_repi(char *check123){
     
     return aa;
 }    
+
+int find_reg_7_11(uint32_t instruction){
+    int wawa = (instruction >> 21) & 31;
+    return wawa;
+}
+int find_reg_11_16(uint32_t instruction){
+    int bawa = (instruction >> 16) & 31;
+    return bawa;
+}
+int find_reg_17_21(uint32_t instruction){
+    int kawa = (instruction >> 11) & 31;
+    return kawa;
+}
