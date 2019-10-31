@@ -3,6 +3,7 @@
 #include "emu.h"
 #include "ram.h"
 #include "registers.h"
+#include <string.h>
 
 /*
  * print a MIPS instruction (no newline)
@@ -12,7 +13,7 @@
 /// FUNCTION FOREWARNINGS                    //////////
 ///////////////////////////////////////////////////////
 char *get_instruction(uint32_t instruction);
-
+int get_num_repi(char *check123);
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -20,11 +21,19 @@ char *get_instruction(uint32_t instruction);
 
 void print_instruction(uint32_t instruction) {
     
-    char *check123 = get_instruction(instruction);
+    char *check123 = get_instruction(instruction); // get the name of the instruction
     printf("%s\n", check123); 
     
-    //char *add = "add";
-    //int b = (add == check123); //b = 1 if they match, 0 if they dont
+    int repi = get_num_repi(check123);
+    //int b = strcmp("add", check123); // b = 0 if they match, 1 if they dont
+    //if(b == 0){
+      printf("%d\n", repi); 
+    //}
+    if(repi == 1 || repi == 2 || repi == 3 || repi == 4 || repi == 5 || repi == 6 || repi == 7 || repi == 8 || repi == 9){
+        printf("i am a coding god\n");
+    }
+
+   
     
 }
 
@@ -153,4 +162,35 @@ char *get_instruction(uint32_t instruction){
     return string1;
 }
 
-
+int get_num_repi(char *check123){
+    int aa = 0;
+    if (strcmp("add", check123) == 0){
+        aa = 1;
+    }
+    if (strcmp("sub", check123) == 0){
+        aa = 2;
+    }
+    if (strcmp("mul", check123) == 0){
+        aa = 3;
+    }
+    if (strcmp("and", check123) == 0){
+        aa = 4;
+    }
+    if (strcmp("or", check123) == 0){
+        aa = 5;
+    }
+    if (strcmp("xor", check123) == 0){
+        aa = 6;
+    }
+    if (strcmp("sllv", check123) == 0){
+        aa = 7;
+    }
+    if (strcmp("srlv", check123) == 0){
+        aa = 8;
+    }
+    if (strcmp("slt", check123) == 0){
+        aa = 9;
+    }
+    
+    return aa;
+}    
