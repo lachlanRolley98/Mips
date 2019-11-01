@@ -17,7 +17,7 @@ int get_num_repi(char *check123);
 int find_reg_7_11(uint32_t instruction);
 int find_reg_11_16(uint32_t instruction);
 int find_reg_17_21(uint32_t instruction);
-uint32_t find_dec_end(uint32_t instruction);
+int16_t find_dec_end(uint32_t instruction);
 int find_dec_mid(uint32_t instruction);
 uint32_t find_4_bit_hex_end(uint32_t instruction);
 ///////////////////////////////////////////////////////
@@ -30,6 +30,7 @@ void print_instruction(uint32_t instruction) {
     int b = 0;
     int c = 0;
     uint32_t d = 0;
+    int16_t e = 0;
     char *check123 = get_instruction(instruction); // get the name of the instruction
     int repi = get_num_repi(check123); // get number representation of intruction to make shit easier
     //printf("%s\n", check123);     
@@ -56,8 +57,8 @@ void print_instruction(uint32_t instruction) {
     else if(repi == 10 || repi == 11 || repi == 12 || repi == 13 || repi == 16 ){    
         a = find_reg_11_16(instruction);
         b = find_reg_7_11(instruction);
-        d = find_dec_end(instruction);
-        printf("%s $%d, $%d, %d",check123 ,a ,b ,d);
+        e = find_dec_end(instruction);
+        printf("%s $%d, $%d, %d",check123 ,a ,b ,e);
     }
     // this does  [ssl, srl ]
     else if(repi == 14 || repi == 15 ){   
@@ -69,21 +70,21 @@ void print_instruction(uint32_t instruction) {
     // this does  [ lui ]
     else if(repi == 17 ){   
         a = find_reg_11_16(instruction); 
-        d = find_dec_end(instruction);
-        printf("%s $%d, %d",check123 ,a ,d);
+        e = find_dec_end(instruction);
+        printf("%s $%d, %d",check123 ,a ,e);
     }
     // this does  [ beq, bne ]
     else if(repi == 24 || repi == 25){    
         a = find_reg_7_11(instruction);       
         b = find_reg_11_16(instruction);
-        d = find_dec_end(instruction);
-        printf("%s $%d, $%d, %d",check123 ,a ,b ,d);
+        e = find_dec_end(instruction);
+        printf("%s $%d, $%d, %d",check123 ,a ,b ,e);
     }
     // this does  [ blez, bgtz, bltz, bgez ]
     else if(repi == 26 || repi == 27 || repi == 28 || repi == 29){   
         a = find_reg_7_11(instruction); 
-        d = find_dec_end(instruction);
-        printf("%s $%d, %d",check123 ,a ,d);
+        e = find_dec_end(instruction);
+        printf("%s $%d, %d",check123 ,a ,e);
     }
     // this does  [ jr ]
     else if(repi == 32){   
@@ -97,9 +98,9 @@ void print_instruction(uint32_t instruction) {
     // this does  [ lb, lh, lw, sb, sh, sw ]
     else if(repi == 18 || repi == 19 || repi == 20 || repi == 21 || repi == 22 || repi == 23){    
         a = find_reg_11_16(instruction);              
-        d = find_dec_end(instruction);
+        e = find_dec_end(instruction);
         c = find_reg_7_11(instruction); 
-        printf("%s $%d, %d($%d)",check123 ,a ,d ,c);
+        printf("%s $%d, %d($%d)",check123 ,a ,e ,c);
     }
     // this does  [ j, jal  ]
     else if(repi == 30 || repi == 31){   
@@ -350,12 +351,13 @@ int find_reg_17_21(uint32_t instruction){
     int kawa = (instruction >> 11) & 31;
     return kawa;
 }
-uint32_t find_dec_end(uint32_t instruction){
+int16_t find_dec_end(uint32_t instruction){
     uint32_t tawa = instruction & 65535;
-    return tawa;
+    int16_t hawa = tawa ;                      //this makes it signed
+    return hawa;
 }
 int find_dec_mid(uint32_t instruction){
-    int vawa = (instruction >> 6) & 31;
+    int vawa = (instruction >> 6) & 31;        // doesnt have to be signed cos only used in shift algebra which always poss
     return vawa;
 }
 uint32_t find_4_bit_hex_end(uint32_t instruction){
