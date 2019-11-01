@@ -17,6 +17,9 @@ int get_num_repi(char *check123);
 int find_reg_7_11(uint32_t instruction);
 int find_reg_11_16(uint32_t instruction);
 int find_reg_17_21(uint32_t instruction);
+int find_dec_end(uint32_t instruction);
+int find_dec_mid(uint32_t instruction);
+uint32_t find_4_bit_hex_end(uint32_t instruction);
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -26,6 +29,7 @@ void print_instruction(uint32_t instruction) {
     int a = 0;
     int b = 0;
     int c = 0;
+    uint32_t d = 0;
     char *check123 = get_instruction(instruction); // get the name of the instruction
     int repi = get_num_repi(check123); // get number representation of intruction to make shit easier
     //printf("%s\n", check123);     
@@ -40,9 +44,60 @@ void print_instruction(uint32_t instruction) {
         c = find_reg_11_16(instruction);
         printf("%s $%d, $%d, $%d",check123 ,a ,b ,c);
     }
-
-   
-    
+    // this does  [ addi, andi, ori, xori, slti]
+    else if(repi == 10 || repi == 11 || repi == 12 || repi == 13 || repi == 16 ){    
+        a = find_reg_11_16(instruction);
+        b = find_reg_7_11(instruction);
+        c = find_dec_end(instruction);
+        printf("%s $%d, $%d, %d",check123 ,a ,b ,c);
+    }
+    // this does  [ssl, srl ]
+    else if(repi == 14 || repi == 15 ){   
+        a = find_reg_17_21(instruction); 
+        b = find_reg_11_16(instruction);
+        c = find_dec_mid(instruction);
+        printf("%s $%d, $%d, %d",check123 ,a ,b ,c);
+    }
+    // this does  [ lui ]
+    else if(repi == 17 ){   
+        a = find_reg_11_16(instruction); 
+        b = find_dec_end(instruction);
+        printf("%s $%d, %d",check123 ,a ,b);
+    }
+    // this does  [ beq, bne ]
+    else if(repi == 24 || repi == 25){    
+        a = find_reg_7_11(instruction);       
+        b = find_reg_11_16(instruction);
+        c = find_dec_end(instruction);
+        printf("%s $%d, $%d, %d",check123 ,a ,b ,c);
+    }
+    // this does  [ blez, bgtz, bltz, bgez ]
+    else if(repi == 26 || repi == 27 || repi == 28 || repi == 29){   
+        a = find_reg_7_11(instruction); 
+        b = find_dec_end(instruction);
+        printf("%s $%d, %d",check123 ,a ,b);
+    }
+    // this does  [ jr ]
+    else if(repi == 32){   
+        a = find_reg_7_11(instruction); 
+        printf("%s $%d",check123 ,a);
+    }
+    // this does  [ syscall ]
+    else if(repi == 33){    
+        printf("syscall");
+    }
+    // this does  [ lb, lh, lw, sb, sh, sw ]
+    else if(repi == 18 || repi == 19 || repi == 20 || repi == 21 || repi == 22 || repi == 23){    
+        a = find_reg_11_16(instruction);              
+        b = find_dec_end(instruction);
+        c = find_reg_7_11(instruction); 
+        find_dec_end(instruction);
+        printf("%s $%d, %d($%d)",check123 ,a ,b ,c);
+    }
+    else if(repi == 30 || repi == 31){   
+        d = find_4_bit_hex_end(instruction); 
+        printf("%s 0x%04x",check123 ,d);
+    }
 }
 
 
@@ -172,32 +227,104 @@ char *get_instruction(uint32_t instruction){
 
 int get_num_repi(char *check123){
     int aa = 0;
-    if (strcmp("add", check123) == 0){
+    if (strcmp("add", check123) == 0){ // change these ifs to else if probs //
         aa = 1;
     }
-    if (strcmp("sub", check123) == 0){
+    else if (strcmp("sub", check123) == 0){//
         aa = 2;
     }
-    if (strcmp("mul", check123) == 0){
+    else if (strcmp("mul", check123) == 0){//
         aa = 3;
     }
-    if (strcmp("and", check123) == 0){
+    else if (strcmp("and", check123) == 0){//
         aa = 4;
     }
-    if (strcmp("or", check123) == 0){
+    else if (strcmp("or", check123) == 0){//
         aa = 5;
     }
-    if (strcmp("xor", check123) == 0){
+    else if (strcmp("xor", check123) == 0){//
         aa = 6;
     }
-    if (strcmp("sllv", check123) == 0){
+    else if (strcmp("sllv", check123) == 0){//
         aa = 7;
     }
-    if (strcmp("srlv", check123) == 0){
+    else if (strcmp("srlv", check123) == 0){//
         aa = 8;
     }
-    if (strcmp("slt", check123) == 0){
+    else if (strcmp("slt", check123) == 0){//
         aa = 9;
+    }
+    else if (strcmp("addi", check123) == 0){//
+        aa = 10;
+    }
+    else if (strcmp("andi", check123) == 0){//
+        aa = 11;
+    }
+    else if (strcmp("ori", check123) == 0){//
+        aa = 12;
+    }
+    else if (strcmp("xori", check123) == 0){//
+        aa = 13;
+    }
+    else if (strcmp("sll", check123) == 0){//
+        aa = 14;
+    }
+    else if (strcmp("srl", check123) == 0){//
+        aa = 15;
+    }
+    else if (strcmp("slti", check123) == 0){//
+        aa = 16;
+    }
+    else if (strcmp("lui", check123) == 0){//
+        aa = 17 ;
+    }
+    else if (strcmp("lb", check123) == 0){//
+        aa = 18;
+    }
+    else if (strcmp("lh", check123) == 0){//
+        aa = 19;
+    }
+    else if (strcmp("lw", check123) == 0){//
+        aa = 20;
+    }
+    else if (strcmp("sb", check123) == 0){//
+        aa = 21;
+    }
+    else if (strcmp("sh", check123) == 0){//
+        aa = 22;
+    }
+    else if (strcmp("sw", check123) == 0){//
+        aa = 23;
+    }
+    else if (strcmp("beq", check123) == 0){//
+        aa = 24;
+    }
+    else if (strcmp("bne", check123) == 0){//
+        aa = 25;
+    }
+    else if (strcmp("blez", check123) == 0){//
+        aa = 26;
+    }
+    else if (strcmp("bgtz", check123) == 0){//
+        aa = 27;
+    }
+    else if (strcmp("bltz", check123) == 0){//
+        aa = 28;
+    }
+    else if (strcmp("bgez", check123) == 0){//
+        aa = 29;
+    }
+    else if (strcmp("j", check123) == 0){
+        aa = 30;
+    }
+    else if (strcmp("jal", check123) == 0){
+        aa = 31;
+    }
+    else if (strcmp("jr", check123) == 0){//
+        aa = 32;
+    }
+    else if (strcmp("syscall", check123) == 0){//
+        aa = 33;
     }
     
     return aa;
@@ -214,4 +341,16 @@ int find_reg_11_16(uint32_t instruction){
 int find_reg_17_21(uint32_t instruction){
     int kawa = (instruction >> 11) & 31;
     return kawa;
+}
+int find_dec_end(uint32_t instruction){
+    int tawa = instruction & 65535;
+    return tawa;
+}
+int find_dec_mid(uint32_t instruction){
+    int vawa = (instruction >> 6) & 31;
+    return vawa;
+}
+uint32_t find_4_bit_hex_end(uint32_t instruction){
+    uint32_t zawa = 67108863 & instruction;
+    return zawa;
 }
