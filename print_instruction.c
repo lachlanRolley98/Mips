@@ -17,7 +17,7 @@ int get_num_repi(char *check123);
 int find_reg_7_11(uint32_t instruction);
 int find_reg_11_16(uint32_t instruction);
 int find_reg_17_21(uint32_t instruction);
-int find_dec_end(uint32_t instruction);
+uint32_t find_dec_end(uint32_t instruction);
 int find_dec_mid(uint32_t instruction);
 uint32_t find_4_bit_hex_end(uint32_t instruction);
 ///////////////////////////////////////////////////////
@@ -38,18 +38,26 @@ void print_instruction(uint32_t instruction) {
     //  printf("%d\n", repi); 
     //}
     // this does  [ add, sub, mul, and, or, xor, sllv, srlv, slt]
-    if(repi == 1 || repi == 2 || repi == 3 || repi == 4 || repi == 5 || repi == 6 || repi == 7 || repi == 8 || repi == 9){
+    if(repi == 1 || repi == 2 || repi == 3 || repi == 4 || repi == 5 || repi == 6  || repi == 9){
         a = find_reg_17_21(instruction);
         b = find_reg_7_11(instruction);
         c = find_reg_11_16(instruction);
+        printf("%s $%d, $%d, $%d",check123 ,a ,b ,c);
+    }
+    // this does  [sllv, srlv]
+    else if(repi == 7 || repi == 8){
+        a = find_reg_17_21(instruction);
+        b = find_reg_11_16(instruction);
+        c = find_reg_7_11(instruction);
+        
         printf("%s $%d, $%d, $%d",check123 ,a ,b ,c);
     }
     // this does  [ addi, andi, ori, xori, slti]
     else if(repi == 10 || repi == 11 || repi == 12 || repi == 13 || repi == 16 ){    
         a = find_reg_11_16(instruction);
         b = find_reg_7_11(instruction);
-        c = find_dec_end(instruction);
-        printf("%s $%d, $%d, %d",check123 ,a ,b ,c);
+        d = find_dec_end(instruction);
+        printf("%s $%d, $%d, %d",check123 ,a ,b ,d);
     }
     // this does  [ssl, srl ]
     else if(repi == 14 || repi == 15 ){   
@@ -61,21 +69,21 @@ void print_instruction(uint32_t instruction) {
     // this does  [ lui ]
     else if(repi == 17 ){   
         a = find_reg_11_16(instruction); 
-        b = find_dec_end(instruction);
-        printf("%s $%d, %d",check123 ,a ,b);
+        d = find_dec_end(instruction);
+        printf("%s $%d, %d",check123 ,a ,d);
     }
     // this does  [ beq, bne ]
     else if(repi == 24 || repi == 25){    
         a = find_reg_7_11(instruction);       
         b = find_reg_11_16(instruction);
-        c = find_dec_end(instruction);
-        printf("%s $%d, $%d, %d",check123 ,a ,b ,c);
+        d = find_dec_end(instruction);
+        printf("%s $%d, $%d, %d",check123 ,a ,b ,d);
     }
     // this does  [ blez, bgtz, bltz, bgez ]
     else if(repi == 26 || repi == 27 || repi == 28 || repi == 29){   
         a = find_reg_7_11(instruction); 
-        b = find_dec_end(instruction);
-        printf("%s $%d, %d",check123 ,a ,b);
+        d = find_dec_end(instruction);
+        printf("%s $%d, %d",check123 ,a ,d);
     }
     // this does  [ jr ]
     else if(repi == 32){   
@@ -89,11 +97,11 @@ void print_instruction(uint32_t instruction) {
     // this does  [ lb, lh, lw, sb, sh, sw ]
     else if(repi == 18 || repi == 19 || repi == 20 || repi == 21 || repi == 22 || repi == 23){    
         a = find_reg_11_16(instruction);              
-        b = find_dec_end(instruction);
+        d = find_dec_end(instruction);
         c = find_reg_7_11(instruction); 
-        find_dec_end(instruction);
-        printf("%s $%d, %d($%d)",check123 ,a ,b ,c);
+        printf("%s $%d, %d($%d)",check123 ,a ,d ,c);
     }
+    // this does  [ j, jal  ]
     else if(repi == 30 || repi == 31){   
         d = find_4_bit_hex_end(instruction); 
         printf("%s 0x%04x",check123 ,d);
@@ -109,7 +117,7 @@ char *get_instruction(uint32_t instruction){
 
     uint32_t intF = instruction >> 26;      // got first 6 bits moved to the front now
     uint32_t intL = instruction & 63;        // got last 6 bits as 63 = 00000000000000000000000111111
-    uint32_t intM = (instruction >> 16) & 63;  //this the middle bits, not the middle left but middle all moved to left hand size
+    uint32_t intM = (instruction >> 16) & 31;  //this the middle 5 bits, not the middle left but middle all moved to left hand size
 
     
     char *string1 = "didnt go through :(";
@@ -342,8 +350,8 @@ int find_reg_17_21(uint32_t instruction){
     int kawa = (instruction >> 11) & 31;
     return kawa;
 }
-int find_dec_end(uint32_t instruction){
-    int tawa = instruction & 65535;
+uint32_t find_dec_end(uint32_t instruction){
+    uint32_t tawa = instruction & 65535;
     return tawa;
 }
 int find_dec_mid(uint32_t instruction){
