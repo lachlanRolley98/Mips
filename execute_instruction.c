@@ -5,7 +5,7 @@
 #include "registers.h"
 #include <string.h>
 
-
+//theres gota be a way to use the old print instruction functions, mby throw all in a .h file ??
 char *get_instructionEXE(uint32_t instruction);
 int find_reg_7_11EXE(uint32_t instruction);
 int find_reg_11_16EXE(uint32_t instruction);
@@ -36,14 +36,16 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
     int b = 0;
     int c = 0;
     //uint32_t d = 0;
-    //int16_t e = 0;
+    int16_t e = 0;
     
     if (strcmp("add", checkEXE) == 0){        //done
-    
+        
+        //find what registers we need (14,11,7)
         a = find_reg_17_21EXE(instruction);
         b = find_reg_7_11EXE(instruction);
         c = find_reg_11_16EXE(instruction);
-
+        
+        //now we got the registers, grab vals inside them
         uint32_t x = get_register(b);
         uint32_t y = get_register(c);
         uint32_t sum = x + y;
@@ -142,12 +144,12 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         (*program_counter) += 4;
         return 0;   
     }
-    else if (strcmp("slt", checkEXE) == 0){ 
-    
+    else if (strcmp("slt", checkEXE) == 0){        //done
+        //find what registers we need (14,11,7)
         a = find_reg_17_21EXE(instruction);
         b = find_reg_7_11EXE(instruction);
         c = find_reg_11_16EXE(instruction);
-
+        //now we got the registers, grab vals inside them
         uint32_t x = get_register(b);
         uint32_t y = get_register(c);
         uint32_t sum = (x < y);
@@ -155,7 +157,76 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         (*program_counter) += 4;
         return 0;   
     }
-    return 0;  
+    else if(strcmp("addi", checkEXE) == 0 ){        //done ?????*4 neg ints and shit  
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        int16_t x = get_register(b);
+        int16_t sum = x + e ;
+        set_register(a, sum); 
+        (*program_counter) += 4;
+        return 0; 
+
+    }
+    else if(strcmp("andi", checkEXE) == 0){         //done ?negs?
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        int16_t x = get_register(b);
+        int16_t sum = x & e ;
+        set_register(a, sum); 
+        (*program_counter) += 4;
+        return 0; 
+    }
+    else if(strcmp("ori", checkEXE) == 0 ){         //done ?negs?
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        int16_t x = get_register(b);
+        int16_t sum = x | e ;
+        set_register(a, sum); 
+        (*program_counter) += 4;
+        return 0; 
+    }
+    else if(strcmp("xori", checkEXE) == 0 ){         //done ?negs?
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        int16_t x = get_register(b);
+        int16_t sum = x ^ e ;
+        set_register(a, sum); 
+        (*program_counter) += 4;
+        return 0; 
+    }
+    else if (strcmp("sll", checkEXE) == 0){          //done
+        //find what registers we need (14,11,7)
+        a = find_reg_17_21EXE(instruction);
+        c = find_reg_11_16EXE(instruction);
+        e = find_dec_midEXE(instruction);
+        //now we got the registers, grab vals inside them
+        uint32_t x = get_register(c);        
+        uint32_t sum = x << e;
+        set_register(a, sum); 
+        (*program_counter) += 4;
+        return 0;   
+    }  
+    else if (strcmp("srl", checkEXE) == 0){           //done
+        //find what registers we need (14,11,7)
+        a = find_reg_17_21EXE(instruction);
+        c = find_reg_11_16EXE(instruction);
+        e = find_dec_midEXE(instruction);
+        //now we got the registers, grab vals inside them
+        uint32_t x = get_register(c);        
+        uint32_t sum = x >> e;
+        set_register(a, sum); 
+        (*program_counter) += 4;
+        return 0;   
+    }  
+    return 0;
 }
 
 // PUT EXTRA FUNCTIONS HERE
