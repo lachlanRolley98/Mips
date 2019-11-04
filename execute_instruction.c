@@ -172,10 +172,10 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
     else if(strcmp("andi", checkEXE) == 0){        //done ?negs?
         a = find_reg_11_16EXE(instruction);
         b = find_reg_7_11EXE(instruction);
-        e = find_dec_endEXE(instruction);
+        d = find_dec_endEXE(instruction);
 
-        int16_t x = get_register(b);
-        int16_t sum = x & e ;
+        int32_t x = get_register(b);
+        int32_t sum = x & d ;
         set_register(a, sum); 
         (*program_counter) += 4;
         return 0; 
@@ -183,7 +183,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
     else if(strcmp("ori", checkEXE) == 0 ){        //done ?negs?
         a = find_reg_11_16EXE(instruction);
         b = find_reg_7_11EXE(instruction);
-        d = find_dec_endEXE(instruction);
+        d = find_dec_endEXE(instruction); //pretty worried cos this is unsigned how negs will turn out
 
         int32_t x = get_register(b);
         int32_t sum = x | d ;
@@ -194,10 +194,10 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
     else if(strcmp("xori", checkEXE) == 0 ){       //done ?negs?
         a = find_reg_11_16EXE(instruction);
         b = find_reg_7_11EXE(instruction);
-        e = find_dec_endEXE(instruction);
+        d = find_dec_endEXE(instruction);
 
-        int16_t x = get_register(b);
-        int16_t sum = x ^ e ;
+        int32_t x = get_register(b);
+        int32_t sum = x ^ d ;
         set_register(a, sum); 
         (*program_counter) += 4;
         return 0; 
@@ -554,24 +554,24 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
             (*program_counter) += 4;
             return 0;
         } 
-        /*if (v_0 == 8){            //read string not working
-            //int x = 0;
-            //uint32_t address_take =  get_register(4) + x;
+        if (v_0 == 8){            //read string probs wont work
+            int yy = 0;
+            int xx = get_register(5); // this maximum number of characters to read
+            uint32_t address_takecc =  get_register(4) | 0x10010000; // $at // this where to store 
             
-            //if we can grab a single int and print its asccii form
-            int a_0 = get_register(4); // this only works if its a 1 character string
+            //if we can grab a single byte
+            while(yy<xx){
+                uint8_t a_0 = scanf("%c",&a_0); // this only works if its a 1 character string
+                set_byte(address_takecc, a_0);
+                address_takecc ++;
+                yy ++;
+            } 
             
-            //while(a_0 != '\0'){
-                //address_take =  get_register(4) + x;
-                //a_0 = get_byte(address_take);
-            printf("%c",a_0);
-                //x ++;
-
-            //}
+            
             (*program_counter) += 4;
             return 0;
 
-        } */
+        } 
         if (v_0 == 10){            //exit
             
             return 1;
