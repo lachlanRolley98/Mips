@@ -35,7 +35,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
     int a = 0;
     int b = 0;
     int c = 0;
-    //uint32_t d = 0;
+    uint32_t d = 0;
     int16_t e = 0;
     
     if (strcmp("add", checkEXE) == 0){        //done
@@ -157,7 +157,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         (*program_counter) += 4;
         return 0;   
     }
-    else if(strcmp("addi", checkEXE) == 0 ){        //done ?????*4 neg ints and shit  
+    else if(strcmp("addi", checkEXE) == 0 ){       //done ?????*4 neg ints and shit  
         a = find_reg_11_16EXE(instruction);
         b = find_reg_7_11EXE(instruction);
         e = find_dec_endEXE(instruction);
@@ -169,7 +169,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         return 0; 
 
     }
-    else if(strcmp("andi", checkEXE) == 0){         //done ?negs?
+    else if(strcmp("andi", checkEXE) == 0){        //done ?negs?
         a = find_reg_11_16EXE(instruction);
         b = find_reg_7_11EXE(instruction);
         e = find_dec_endEXE(instruction);
@@ -180,7 +180,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         (*program_counter) += 4;
         return 0; 
     }
-    else if(strcmp("ori", checkEXE) == 0 ){         //done ?negs?
+    else if(strcmp("ori", checkEXE) == 0 ){        //done ?negs?
         a = find_reg_11_16EXE(instruction);
         b = find_reg_7_11EXE(instruction);
         e = find_dec_endEXE(instruction);
@@ -191,7 +191,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         (*program_counter) += 4;
         return 0; 
     }
-    else if(strcmp("xori", checkEXE) == 0 ){         //done ?negs?
+    else if(strcmp("xori", checkEXE) == 0 ){       //done ?negs?
         a = find_reg_11_16EXE(instruction);
         b = find_reg_7_11EXE(instruction);
         e = find_dec_endEXE(instruction);
@@ -202,7 +202,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         (*program_counter) += 4;
         return 0; 
     }
-    else if (strcmp("sll", checkEXE) == 0){          //done
+    else if (strcmp("sll", checkEXE) == 0){        //done
         //find what registers we need (14,11,7)
         a = find_reg_17_21EXE(instruction);
         c = find_reg_11_16EXE(instruction);
@@ -214,7 +214,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         (*program_counter) += 4;
         return 0;   
     }  
-    else if (strcmp("srl", checkEXE) == 0){           //done
+    else if (strcmp("srl", checkEXE) == 0){        //done
         //find what registers we need (14,11,7)
         a = find_reg_17_21EXE(instruction);
         c = find_reg_11_16EXE(instruction);
@@ -225,7 +225,159 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         set_register(a, sum); 
         (*program_counter) += 4;
         return 0;   
-    }  
+    } 
+    else if (strcmp("slti", checkEXE) == 0){       //done     
+        //find what registers we need (14,11,7)
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        int16_t x = get_register(b);
+        int16_t sum = (x < e) ;
+        set_register(a, sum); 
+        (*program_counter) += 4;
+        return 0; 
+    } 
+    else if (strcmp("lui", checkEXE) == 0){        //done    
+        //find what registers we need (14,11,7)
+        a = find_reg_11_16EXE(instruction);
+        d = find_dec_endEXE(instruction);
+
+        int32_t sum = d << 16 ;
+        set_register(a, sum); 
+        (*program_counter) += 4;
+        return 0; 
+    } 
+    else if (strcmp("lb", checkEXE) == 0){         //done baby   
+        //find what registers we need (14,11,7)
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);   // is the byte ?
+        e = find_dec_endEXE(instruction);    // e is signed 16     
+        
+        //seems you get the address by going get_register(11) + 8 and this will give you the address
+
+        // once the address is got, you throw it in get_byte(address) anf then store it in the new reg
+        uint32_t address_take =  get_register(b) + e;  // b is the register in question so you get the address held bye it in get register then add the offset       
+        //uint32_t address_store =  get_register(a);
+        uint8_t the_byte = get_byte(address_take); // now we have the byte content of from the address
+        // gota sign extend or someshit so i think if there is a 1 in the most signif, just bitmask it all with 0xFFFFFF00
+        uint32_t sign_extended_byte = the_byte;
+        if (the_byte >> 7 == 1){
+            sign_extended_byte = the_byte | 0xFFFFFF00;
+        }
+        set_register(a, sign_extended_byte); // load/store that shit
+          
+        (*program_counter) += 4;
+        return 0; 
+    }
+    else if (strcmp("lh", checkEXE) == 0){         //done    
+        //find what registers we need (14,11,7)
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);   // is the byte ?
+        e = find_dec_endEXE(instruction);    // e is signed 16     
+        
+        //seems you get the address by going get_register(11) + 8 and this will give you the address
+
+        // once the address is got, you throw it in get_byte(address) anf then store it in the new reg
+        uint32_t address_take =  get_register(b) + e;  // b is the register in question so you get the address held bye it in get register then add the offset       
+        //uint32_t address_store =  get_register(a);
+        uint16_t the_right_byte = get_byte(address_take); // now we have half the byte content of from the address
+        uint16_t the_left_byte = get_byte(address_take + 1) << 8;
+        uint16_t the_byte = the_right_byte | the_left_byte;
+        
+        
+        
+        // gota sign extend or someshit so i think if there is a 1 in the most signif, just bitmask it all with 0xFFFFFF00
+        uint32_t sign_extended_byte = the_byte;
+        if (the_byte >> 15 == 1){
+            sign_extended_byte = the_byte | 0xFFFF0000;
+        }
+        set_register(a, sign_extended_byte); // load/store that shit
+          
+        (*program_counter) += 4;
+        return 0; 
+    }
+    else if (strcmp("lw", checkEXE) == 0){         //done    
+        //find what registers we need (14,11,7)
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);   // is the byte ?
+        e = find_dec_endEXE(instruction);    // e is signed 16     
+        
+        //seems you get the address by going get_register(11) + 8 and this will give you the address
+
+        // once the address is got, you throw it in get_byte(address) anf then store it in the new reg
+        uint32_t address_take =  get_register(b) + e;  // b is the register in question so you get the address held bye it in get register then add the offset       
+        //uint32_t address_store =  get_register(a);
+        uint32_t the_right_byte = get_byte(address_take); // now we have half the byte content of from the address
+        uint32_t the_rm_byte = get_byte(address_take + 1) << 8;
+        uint32_t the_lm_byte = get_byte(address_take + 2) << 16;
+        uint32_t the_left_byte = get_byte(address_take + 3) ;
+        the_left_byte = the_left_byte << 24;
+        
+        uint32_t the_byte = the_right_byte | the_left_byte | the_rm_byte | the_lm_byte;
+        
+        
+        
+        // dont have to sign extend
+        //uint32_t sign_extended_byte = the_byte;
+        //if (the_byte >> 15 == 1){
+        //    sign_extended_byte = the_byte | 0xFFFF0000;
+        //}
+        set_register(a, the_byte); // load/store that shit
+          
+        (*program_counter) += 4;
+        return 0; 
+    }
+    else if (strcmp("sb", checkEXE) == 0){         //done     
+        //find what registers we need (14,11,7)
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);   // is the byte ?
+        e = find_dec_endEXE(instruction);    // e is signed 16     
+        
+        uint8_t the_byte = get_register(a) & 0xFF;
+        //uint8_t the_byte = a & 0xff; // now we have the byte content of from the address
+        
+        uint32_t address_give =  get_register(b) + e;
+        set_byte(address_give, the_byte); // load/store that shit
+          
+        (*program_counter) += 4;
+        return 0; 
+    }
+    else if (strcmp("sh", checkEXE) == 0){            
+        //find what registers we need (14,11,7)
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);   // is the byte ?
+        e = find_dec_endEXE(instruction);    // e is signed 16     
+        
+        
+        uint8_t the_right_byte = get_register(a) & 0xFF; // now we have the byte content of from the address
+        uint8_t the_left_byte = get_register(a) >> 8 & 0xFF; // now we have the byte content of from the address
+        uint32_t address_give =  get_register(b) + e;
+        set_byte(address_give, the_right_byte); // load/store that shit
+        set_byte(address_give + 1, the_left_byte); // load/store that shit
+          
+        (*program_counter) += 4;
+        return 0; 
+    }
+    else if (strcmp("sw", checkEXE) == 0){            
+        //find what registers we need (14,11,7)
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);   // is the byte ?
+        e = find_dec_endEXE(instruction);    // e is signed 16     
+        
+        
+        uint8_t the_right_byte = get_register(a) & 0xFF; // now we have the byte content of from the address
+        uint8_t the_rm_byte = get_register(a) >> 8 & 0xFF; // now we have the byte content of from the address
+        uint8_t the_lm_byte = get_register(a) >> 16 & 0xFF; // now we have the byte content of from the address
+        uint8_t the_left_byte = get_register(a) >> 24 & 0xFF; // now we have the byte content of from the address
+        uint32_t address_give =  get_register(b) + e;
+        set_byte(address_give, the_right_byte); // load/store that shit
+        set_byte(address_give + 1, the_rm_byte); // load/store that shit
+        set_byte(address_give + 2, the_lm_byte); // load/store that shit
+        set_byte(address_give + 3, the_left_byte); // load/store that shit  
+        (*program_counter) += 4;
+        return 0; 
+    }
     return 0;
 }
 
