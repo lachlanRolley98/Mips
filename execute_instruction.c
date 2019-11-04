@@ -38,7 +38,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
     uint32_t d = 0;
     int16_t e = 0;
     
-    if (strcmp("add", checkEXE) == 0){        //done
+    if (strcmp("add", checkEXE) == 0){             //done
         
         //find what registers we need (14,11,7)
         a = find_reg_17_21EXE(instruction);
@@ -343,7 +343,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         (*program_counter) += 4;
         return 0; 
     }
-    else if (strcmp("sh", checkEXE) == 0){            
+    else if (strcmp("sh", checkEXE) == 0){         //done    
         //find what registers we need (14,11,7)
         a = find_reg_11_16EXE(instruction);
         b = find_reg_7_11EXE(instruction);   // is the byte ?
@@ -359,7 +359,7 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         (*program_counter) += 4;
         return 0; 
     }
-    else if (strcmp("sw", checkEXE) == 0){            
+    else if (strcmp("sw", checkEXE) == 0){         //done  
         //find what registers we need (14,11,7)
         a = find_reg_11_16EXE(instruction);
         b = find_reg_7_11EXE(instruction);   // is the byte ?
@@ -377,6 +377,233 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
         set_byte(address_give + 3, the_left_byte); // load/store that shit  
         (*program_counter) += 4;
         return 0; 
+    }
+    else if (strcmp("beq", checkEXE) == 0){        //done     
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        int16_t x = get_register(a);
+        int16_t y = get_register(b);
+        uint32_t sign_extended_counter = e;
+        if (e >> 15 == 1){
+            sign_extended_counter = e | 0xFFFF0000;
+        }
+        if (x == y){
+            (*program_counter) += sign_extended_counter << 2 ;
+        }
+        if ( x!= y){
+            (*program_counter) += 4;
+        }        
+        return 0; 
+    } 
+    else if (strcmp("bne", checkEXE) == 0){        //done     
+        a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        int16_t x = get_register(a);
+        int16_t y = get_register(b);
+        uint32_t sign_extended_counter = e;
+        if (e >> 15 == 1){
+            sign_extended_counter = e | 0xFFFF0000;
+        }
+        if (x != y){
+            (*program_counter) += sign_extended_counter << 2 ;
+        }
+        if ( x == y){
+            (*program_counter) += 4;
+        }        
+        return 0; 
+    } 
+    else if (strcmp("blez", checkEXE) == 0){       //done     
+        //a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        //int16_t x = get_register(a);
+        int16_t y = get_register(b);
+        uint32_t sign_extended_counter = e;
+        if (e >> 15 == 1){
+            sign_extended_counter = e | 0xFFFF0000;
+        }
+        if ( y <= 0 ){
+            (*program_counter) += sign_extended_counter << 2 ;
+        }
+        if ( y > 0 ){
+            (*program_counter) += 4;
+        }        
+        return 0; 
+    } 
+    else if (strcmp("bgtz", checkEXE) == 0){       //done     
+        //a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        //int16_t x = get_register(a);
+        int16_t y = get_register(b);
+        uint32_t sign_extended_counter = e;
+        if (e >> 15 == 1){
+            sign_extended_counter = e | 0xFFFF0000;
+        }
+        if ( y > 0 ){
+            (*program_counter) += sign_extended_counter << 2 ;
+        }
+        if ( y <= 0 ){
+            (*program_counter) += 4;
+        }        
+        return 0; 
+    }
+    else if (strcmp("bltz", checkEXE) == 0){       //done     
+        //a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        //int16_t x = get_register(a);
+        int16_t y = get_register(b);
+        uint32_t sign_extended_counter = e;
+        if (e >> 15 == 1){
+            sign_extended_counter = e | 0xFFFF0000;
+        }
+        if ( y < 0 ){
+            (*program_counter) += sign_extended_counter << 2 ;
+        }
+        if ( y >= 0 ){
+            (*program_counter) += 4;
+        }        
+        return 0; 
+    }
+    else if (strcmp("bgez", checkEXE) == 0){       //done     
+        //a = find_reg_11_16EXE(instruction);
+        b = find_reg_7_11EXE(instruction);
+        e = find_dec_endEXE(instruction);
+
+        //int16_t x = get_register(a);
+        int16_t y = get_register(b);
+        uint32_t sign_extended_counter = e;
+        if (e >> 15 == 1){
+            sign_extended_counter = e | 0xFFFF0000;
+        }
+        if ( y >= 0 ){
+            (*program_counter) += sign_extended_counter << 2 ;
+        }
+        if ( y < 0 ){
+            (*program_counter) += 4;
+        }        
+        return 0; 
+    }
+    else if (strcmp("j", checkEXE) == 0){          //done     
+        
+        
+        uint32_t X = 67108863 & instruction;
+           
+        (*program_counter) = (*program_counter & 0xF0000000) | (X << 2);
+                
+        return 0; 
+    }
+    else if (strcmp("jal", checkEXE) == 0){        //done     
+        
+        
+        uint32_t X = 67108863 & instruction;
+        set_register(31, *program_counter + 4);   
+
+        (*program_counter) = (*program_counter & 0xF0000000) | (X << 2);
+                
+        return 0; 
+    }
+    else if (strcmp("jr", checkEXE) == 0){         //done     
+        
+        b = find_reg_7_11EXE(instruction);        
+        int16_t y = get_register(b);       
+        (*program_counter) = y ;              
+        return 0; 
+    }
+    else if (strcmp("syscall", checkEXE) == 0){    //done     
+        
+        int v_0 = get_register(2);  // $v0
+        
+        if (v_0 == 1){             //print int
+            int a_0 = get_register(4);
+            printf("%d",a_0);
+            (*program_counter) += 4;
+            return 0;
+        } 
+        if (v_0 == 4){             //print string not working
+            int x = 0;
+            uint32_t address_takebb =  get_register(4) ;
+            
+            //if we can grab a single int and print its asccii form
+            int aa_0 = get_byte(address_takebb); 
+            
+            while(aa_0 != '\0'){
+                address_takebb =  get_register(4) + x; // will grab the address of the byte next to the byte
+                aa_0 = get_byte(address_takebb);
+                printf("%c",aa_0);
+                x ++;
+
+            }
+            (*program_counter) += 4;
+            
+            return 0;
+
+        } 
+        if (v_0 == 5){             //read int
+            int h = 0;
+            scanf("%d", &h);
+            set_register(2, h);
+            (*program_counter) += 4;
+            return 0;
+        } 
+        /*if (v_0 == 8){            //read string not working
+            //int x = 0;
+            //uint32_t address_take =  get_register(4) + x;
+            
+            //if we can grab a single int and print its asccii form
+            int a_0 = get_register(4); // this only works if its a 1 character string
+            
+            //while(a_0 != '\0'){
+                //address_take =  get_register(4) + x;
+                //a_0 = get_byte(address_take);
+            printf("%c",a_0);
+                //x ++;
+
+            //}
+            (*program_counter) += 4;
+            return 0;
+
+        } */
+        if (v_0 == 10){            //exit
+            
+            return 1;
+        }
+        if (v_0 == 11){            //print char
+            //int x = 0;
+            //uint32_t address_take =  get_register(4) + x;
+            
+            //if we can grab a single int and print its asccii form
+            int a_0 = get_register(4); // this only works if its a 1 character string
+            
+            //while(a_0 != '\0'){
+                //address_take =  get_register(4) + x;
+                //a_0 = get_byte(address_take);
+            printf("%c",a_0);
+                //x ++;
+
+            //}
+            (*program_counter) += 4;
+            return 0;
+
+        } 
+        if (v_0 == 11){            //read char
+            char q = 0;
+            scanf("%c", &q);
+            set_register(2, q);
+            (*program_counter) += 4;
+            return 0;
+
+        } 
+        return 0; 
+       
     }
     return 0;
 }
