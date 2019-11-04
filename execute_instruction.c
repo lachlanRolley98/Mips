@@ -183,10 +183,10 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
     else if(strcmp("ori", checkEXE) == 0 ){        //done ?negs?
         a = find_reg_11_16EXE(instruction);
         b = find_reg_7_11EXE(instruction);
-        e = find_dec_endEXE(instruction);
+        d = find_dec_endEXE(instruction);
 
-        int16_t x = get_register(b);
-        int16_t sum = x | e ;
+        int32_t x = get_register(b);
+        int32_t sum = x | d ;
         set_register(a, sum); 
         (*program_counter) += 4;
         return 0; 
@@ -528,18 +528,18 @@ int execute_instruction(uint32_t instruction, uint32_t *program_counter) {
             (*program_counter) += 4;
             return 0;
         } 
-        if (v_0 == 4){             //print string not working
-            int x = 0;
-            uint32_t address_takebb =  get_register(4) ;
+        if (v_0 == 4){             //print string 
+            //int x = 0;
+            uint32_t address_takebb =  get_register(4) | 0x10010000; //this is the address where the string starts
             
             //if we can grab a single int and print its asccii form
-            int aa_0 = get_byte(address_takebb); 
+            uint32_t aa_0 = get_byte(address_takebb); 
             
             while(aa_0 != '\0'){
-                address_takebb =  get_register(4) + x; // will grab the address of the byte next to the byte
-                aa_0 = get_byte(address_takebb);
                 printf("%c",aa_0);
-                x ++;
+                address_takebb ++; // will grab the address of the byte next to the byte
+                
+                aa_0 = get_byte(address_takebb);
 
             }
             (*program_counter) += 4;
